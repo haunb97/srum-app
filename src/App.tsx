@@ -1,11 +1,11 @@
-import React from 'react';
+import React from "react";
 import "tailwindcss/tailwind.css";
-import './App.css';
-import Home from './pages/home/index';
+import "./App.css";
+import Home from "./pages/home/index";
 
 function App() {
   return (
-    <div className="App">
+    <div className="App h-screen w-screen overflow-hidden">
       <Home />
     </div>
   );
