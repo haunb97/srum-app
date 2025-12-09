@@ -7,8 +7,19 @@ interface Props {
 export default function BigCart(props: Props) {
   const { backToListCard, number } = props;
   const [isShowTwelfthCard, setIsShowTwelfthCard] = useState(true);
-  const onClick = () => {
-    setIsShowTwelfthCard(!isShowTwelfthCard);
+  const onClick = async () => {
+    await handleDelay(() => setIsShowTwelfthCard(!isShowTwelfthCard));
+    console.log("🔥 - onClick - onClick:");
+  };
+
+  function delay(ms: number) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  const handleDelay = async (callBack: () => void) => {
+    await delay(3000);
+    callBack();
+    console.log("🔥 - BigCart - handleDelay:");
   };
 
   const onClickBack = () => {

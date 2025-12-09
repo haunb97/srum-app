@@ -1,0 +1,224 @@
+diff --git a/node_modules/postcss-safe-parser/CHANGELOG.md b/node_modules/postcss-safe-parser/CHANGELOG.md
+deleted file mode 100644
+index bcc7dee..0000000
+--- a/node_modules/postcss-safe-parser/CHANGELOG.md
++++ /dev/null
+@@ -1,61 +0,0 @@
+-# Change Log
+-This project adheres to [Semantic Versioning](http://semver.org/).
+-
+-## 5.0.2
+-* Added funding links.
+-
+-## 5.0.1
+-* Fixed parsing missed semicolon.
+-
+-## 5.0
+-* Removed support for Node.js 6.x, 8.x, 11.x, and 13.x versions.
+-* Moved to PostCSS 8.0.
+-
+-## 4.0.2
+-* Fix parsing `:;`.
+-
+-## 4.0.1
+-* Remove development file from npm package.
+-
+-## 4.0
+-* Remove Node.js 9 and Node.js 4 support.
+-* Remove IE and “dead” browsers from Babel.
+-* Use PostCSS 7.0.
+-
+-## 3.0.1
+-* Fix parsing IE filter with missed semicolon.
+-
+-## 3.0
+-* Use PostCSS 6.0.
+-* Use `babel-preset-env`.
+-
+-## 2.0.1
+-* Do not fall on colon instead of semicolon in the declaration end.
+-
+-## 2.0
+-* Use PostCSS 5.2 core tokenizer.
+-
+-## 1.0.7
+-* Parse new lines according W3C CSS syntax specification.
+-
+-## 1.0.6
+-* Fix package dependencies.
+-
+-## 1.0.5
+-* Fix CSS syntax error position on unclosed quotes.
+-
+-## 1.0.4
+-* Fix wrong `main` in `package.json`.
+-
+-## 1.0.3
+-* Remove Babel from dependencies (by Jonny Buchanan).
+-
+-## 1.0.2
+-* Clean code for PostCSS 5.0.13 internal changes.
+-* Use Babel 6.
+-
+-## 1.0.1
+-* Fix `url()` parsing.
+-
+-## 1.0
+-* Initial release from PostCSS sources.
+diff --git a/node_modules/postcss-safe-parser/README.md b/node_modules/postcss-safe-parser/README.md
+index 21b34cc..9ddf644 100644
+--- a/node_modules/postcss-safe-parser/README.md
++++ b/node_modules/postcss-safe-parser/README.md
+@@ -16,18 +16,10 @@ capable of parsing any input. It is useful for:
+ [PostCSS]:           https://github.com/postcss/postcss
+ 
+ <a href="https://evilmartians.com/?utm_source=postcss">
+-  <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg" alt="Sponsored by Evil Martians" width="236" height="54">
++  <img src="https://evilmartians.com/badges/sponsored-by-evil-martians.svg"
++    alt="Sponsored by Evil Martians" width="236" height="54">
+ </a>
+ 
+ 
+-## Usage
+-
+-```js
+-const safe = require('postcss-safe-parser')
+-
+-const badCss = 'a {'
+-
+-postcss(plugins).process(badCss, { parser: safe }).then(result => {
+-  result.css //= 'a {}'
+-})
+-```
++## Docs
++Read full docs **[here](https://github.com/postcss/postcss-safe-parser#readme)**.
+diff --git a/node_modules/postcss-safe-parser/lib/safe-parse.js b/node_modules/postcss-safe-parser/lib/safe-parse.js
+index 2585177..601831a 100644
+--- a/node_modules/postcss-safe-parser/lib/safe-parse.js
++++ b/node_modules/postcss-safe-parser/lib/safe-parse.js
+@@ -2,7 +2,7 @@ let { Input } = require('postcss')
+ 
+ let SafeParser = require('./safe-parser')
+ 
+-module.exports = function safeParse (css, opts) {
++module.exports = function safeParse(css, opts) {
+   let input = new Input(css, opts)
+ 
+   let parser = new SafeParser(input)
+diff --git a/node_modules/postcss-safe-parser/lib/safe-parser.js b/node_modules/postcss-safe-parser/lib/safe-parser.js
+index 809422a..f24adbd 100644
+--- a/node_modules/postcss-safe-parser/lib/safe-parser.js
++++ b/node_modules/postcss-safe-parser/lib/safe-parser.js
+@@ -1,22 +1,20 @@
+-let tokenizer = require('postcss/lib/tokenize')
+ let Comment = require('postcss/lib/comment')
+ let Parser = require('postcss/lib/parser')
++let tokenizer = require('postcss/lib/tokenize')
+ 
+ class SafeParser extends Parser {
+-  createTokenizer () {
+-    this.tokenizer = tokenizer(this.input, { ignoreErrors: true })
+-  }
++  checkMissedSemicolon() {}
+ 
+-  comment (token) {
++  comment(token) {
+     let node = new Comment()
+     this.init(node, token[2])
+     let pos =
+       this.input.fromOffset(token[3]) ||
+       this.input.fromOffset(this.input.css.length - 1)
+     node.source.end = {
+-      offset: token[3],
++      column: pos.col,
+       line: pos.line,
+-      column: pos.col
++      offset: token[3] + 1
+     }
+ 
+     let text = token[1].slice(2)
+@@ -34,29 +32,32 @@ class SafeParser extends Parser {
+     }
+   }
+ 
+-  decl (tokens) {
++  createTokenizer() {
++    this.tokenizer = tokenizer(this.input, { ignoreErrors: true })
++  }
++
++  decl(tokens) {
+     if (tokens.length > 1 && tokens.some(i => i[0] === 'word')) {
+       super.decl(tokens)
+     }
+   }
+ 
+-  unclosedBracket () {}
+-
+-  unknownWord (tokens) {
+-    this.spaces += tokens.map(i => i[1]).join('')
+-  }
+-
+-  unexpectedClose () {
+-    this.current.raws.after += '}'
+-  }
++  doubleColon() {}
+ 
+-  doubleColon () {}
++  endFile() {
++    if (this.current.nodes && this.current.nodes.length) {
++      this.current.raws.semicolon = this.semicolon
++    }
++    this.current.raws.after = (this.current.raws.after || '') + this.spaces
+ 
+-  unnamedAtrule (node) {
+-    node.name = ''
++    while (this.current.parent) {
++      this.current = this.current.parent
++      this.current.raws.after = ''
++    }
++    this.root.source.end = this.getPosition(this.tokenizer.position())
+   }
+ 
+-  precheckMissedSemicolon (tokens) {
++  precheckMissedSemicolon(tokens) {
+     let colon = this.colon(tokens)
+     if (colon === false) return
+ 
+@@ -64,7 +65,7 @@ class SafeParser extends Parser {
+     for (nextStart = colon - 1; nextStart >= 0; nextStart--) {
+       if (tokens[nextStart][0] === 'word') break
+     }
+-    if (nextStart === 0) return
++    if (nextStart === 0 || nextStart < 0) return
+ 
+     for (prevEnd = nextStart - 1; prevEnd >= 0; prevEnd--) {
+       if (tokens[prevEnd][0] !== 'space') {
+@@ -81,18 +82,18 @@ class SafeParser extends Parser {
+     this.decl(other)
+   }
+ 
+-  checkMissedSemicolon () {}
++  unclosedBracket() {}
+ 
+-  endFile () {
+-    if (this.current.nodes && this.current.nodes.length) {
+-      this.current.raws.semicolon = this.semicolon
+-    }
+-    this.current.raws.after = (this.current.raws.after || '') + this.spaces
++  unexpectedClose() {
++    this.current.raws.after += '}'
++  }
+ 
+-    while (this.current.parent) {
+-      this.current = this.current.parent
+-      this.current.raws.after = ''
+-    }
++  unknownWord(tokens) {
++    this.spaces += tokens.map(i => i[1]).join('')
++  }
++
++  unnamedAtrule(node) {
++    node.name = ''
+   }
+ }
+ 
