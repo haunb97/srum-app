@@ -1,44 +1,198 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app), using the [Redux](https://redux.js.org/) and [Redux Toolkit](https://redux-toolkit.js.org/) template.
+# Demo Scrum App
 
-## Available Scripts
+A modern Scrum card flipping demo application built with React, Redux Toolkit, and Tailwind CSS. Features 12 selectable cards with flip animations to reveal details.
 
-In the project directory, you can run:
+## 🚀 Tech Stack
 
-### `yarn start`
+- **React 18.2+** - UI library
+- **TypeScript 5.3+** - Type safety
+- **Redux Toolkit 1.9+** - State management
+- **React Hook Form 7.50+** - Form handling
+- **Zod 3.22+** - Schema validation
+- **Tailwind CSS 3.4+** - Styling
+- **Craco 6.2+** - CRA configuration override
+- **Jest + React Testing Library** - Testing
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 📋 Prerequisites
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+- **Node.js**: 18.20.8+ (Node 20+ recommended for better ESM support)
+- **Yarn**: 1.22+ (preferred) or npm 8+
 
-### `yarn test`
+## 🛠️ Installation
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+# Clone the repository
+git clone https://github.com/haunb97/srum-app.git
+cd srum-app
 
-### `yarn build`
+# Install dependencies
+yarn install
+```
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 🎯 Available Scripts
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+### Development
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+# Start development server
+yarn dev
+# or
+yarn start
 
-### `yarn eject`
+# Access at http://localhost:3000
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Testing
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+# Run tests in interactive watch mode
+yarn test
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+# Run tests once (CI mode)
+yarn test:ci
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### Code Quality
 
-## Learn More
+```bash
+# Check for linting errors
+yarn lint
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+# Fix linting errors automatically
+yarn lint:fix
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Format code with Prettier
+yarn format
+
+# Check code formatting
+yarn format:check
+```
+
+### Build
+
+```bash
+# Build for production
+yarn build
+
+# Output: build/ folder with optimized production bundle
+```
+
+## 🔧 Git Hooks (Husky)
+
+Automated quality checks run on git operations:
+
+### Pre-commit Hook
+
+- ✅ Runs ESLint on staged files
+- ✅ Checks Prettier formatting
+- ❌ **Blocks commit** if issues found
+- 💡 Fix with: `yarn lint:fix` and `yarn format`
+
+### Pre-push Hook
+
+- ✅ Runs full test suite
+- ❌ **Blocks push** if tests fail
+- 💡 Fix tests before pushing
+
+## 📁 Project Structure
+
+```
+src/
+├── app/                    # Redux store & hooks
+│   ├── store.ts           # configureStore setup
+│   ├── hooks.ts           # Typed Redux hooks
+│   └── assets/images/     # Static assets
+├── features/              # Redux slices
+│   └── counter/
+│       ├── counterSlice.ts
+│       ├── counterAPI.ts
+│       └── Counter.tsx
+├── components/            # Presentational components
+│   ├── BigCards/
+│   ├── SmallCards/
+│   └── BackOfTheCard/
+├── pages/                 # Page/container components
+│   ├── home/
+│   └── Login/
+│       ├── LoginForm.tsx
+│       └── LoginForm.test.tsx
+├── App.tsx
+└── index.tsx
+```
+
+## 🧪 Testing
+
+Tests are written with Jest and React Testing Library:
+
+- **Unit tests**: Redux slices, utilities
+- **Component tests**: User interactions, form validation
+- **Integration tests**: Full user flows
+
+Run tests:
+
+```bash
+yarn test              # Watch mode
+yarn test:ci          # Run once
+yarn test --coverage  # With coverage report
+```
+
+## 🎨 Code Style
+
+### ESLint
+
+- Extends `react-app` config
+- Prettier integration enabled
+- TypeScript strict mode
+
+### Prettier
+
+- Semi-colons: enabled
+- Single quotes: disabled (double quotes)
+- Print width: 80
+- Tab width: 2 spaces
+
+Configuration files:
+
+- `.eslintrc` (in package.json)
+- `.prettierrc`
+- `.lintstagedrc.json`
+
+## 🐛 Known Issues
+
+### Minimatch ESM/CJS Compatibility (Node 18)
+
+- **Issue**: `minimatch@9.x` is ESM-only, conflicts with CJS dependencies
+- **Solution**: Using `minimatch@5.1.6` in resolutions (see `package.json`)
+- **Alternative**: Upgrade to Node 20+ for better ESM support
+
+## 🚢 Deployment
+
+```bash
+# Build production bundle
+yarn build
+
+# Deploy build/ folder to your hosting provider
+# Compatible with: Vercel, Netlify, GitHub Pages, etc.
+```
+
+## 📖 Learn More
+
+- [Create React App Documentation](https://create-react-app.dev/)
+- [Redux Toolkit Documentation](https://redux-toolkit.js.org/)
+- [React Hook Form](https://react-hook-form.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Zod Documentation](https://zod.dev/)
+
+## 📝 License
+
+This project is private and for demonstration purposes.
+
+## 👤 Author
+
+**haunb97**
+
+- GitHub: [@haunb97](https://github.com/haunb97)
+
+---
+
+Built with ❤️ using Create React App + Redux Toolkit template

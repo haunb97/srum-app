@@ -91,29 +91,27 @@ describe("LoginForm", () => {
   });
 
   it("should submit form with correct data", async () => {
-    const consoleSpy = jest.spyOn(console, "log");
+    const mockOnLoginSuccess = jest.fn();
     const user = userEvent.setup();
-    render(<LoginForm />);
+    render(<LoginForm onLoginSuccess={mockOnLoginSuccess} />);
 
     const emailInput = screen.getByLabelText("Email");
     const passwordInput = screen.getByLabelText("Password");
-    const submitButton = screen.getByRole("button", { name: /đăng nhập/i });
 
     await user.type(emailInput, "test@example.com");
     await user.type(passwordInput, "password123");
 
-    await waitFor(() => {
-      expect(submitButton).not.toBeDisabled();
-    });
+    const submitButton = screen.getByRole("button", { name: /đăng nhập/i });
+    expect(submitButton).not.toBeDisabled();
 
     await user.click(submitButton);
 
-    await waitFor(() => {
-      expect(consoleSpy).toHaveBeenCalledWith("Form data:", {
-        email: "test@example.com",
-        password: "password123",
-      });
-    });
+    await waitFor(
+      () => {
+        expect(mockOnLoginSuccess).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 3000 }
+    );
   });
 
   it("should not submit form when email is invalid", async () => {

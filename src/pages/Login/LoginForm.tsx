@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -11,7 +11,14 @@ const loginSchema = z.object({
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
-export const LoginForm: React.FC = () => {
+interface LoginFormProps {
+  onLoginSuccess?: () => void;
+}
+
+export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -21,8 +28,30 @@ export const LoginForm: React.FC = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log("Form data:", data);
+  const onSubmit = async (data: LoginFormData) => {
+    setIsLoggingIn(true);
+    setLoginError(null);
+
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Login always succeeds
+      console.log("Login successful:", data);
+
+      // Store login state
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userEmail", data.email);
+
+      // Redirect to home
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+    } catch (error) {
+      setLoginError("Đã xảy ra lỗi. Vui lòng thử lại.");
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
   return (
@@ -58,8 +87,18 @@ export const LoginForm: React.FC = () => {
           )}
         </div>
 
-        <button type="submit" disabled={!isValid} className="submit-button">
-          Đăng Nhập
+        {loginError && (
+          <div className="error-message" style={{ textAlign: "center" }}>
+            {loginError}
+          </div>
+        )}
+
+        <button
+          type="submit"
+          disabled={!isValid || isLoggingIn}
+          className="submit-button"
+        >
+          {isLoggingIn ? "Đang đăng nhập..." : "Đăng Nhập"}
         </button>
       </form>
     </div>
