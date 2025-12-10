@@ -20,7 +20,8 @@ describe("BigCard", () => {
   it("should render without card number", () => {
     render(<BigCard backToListCard={mockBackToListCard} />);
 
-    expect(screen.getByLabelText(/Card/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Card , click to flip/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /back/i })).toBeInTheDocument();
   });
 
   it("should flip card when clicked", async () => {
